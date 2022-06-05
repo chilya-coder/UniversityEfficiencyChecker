@@ -37,7 +37,7 @@ CREATE TABLE `university_efficiency_db`.`departments`
 CREATE TABLE `university_efficiency_db`.`faculties`
 (
     `faculty_id` INT         NOT NULL AUTO_INCREMENT,
-    `name`       VARCHAR(45) NOT NULL,
+    `name`       VARCHAR(100) NOT NULL,
     PRIMARY KEY (`faculty_id`)
 );
 
@@ -216,5 +216,15 @@ ALTER TABLE `university_efficiency_db`.`user_credentials`
         FOREIGN KEY (`user_id`)
             REFERENCES `university_efficiency_db`.`users` (`user_id`)
             ON DELETE CASCADE
+            ON UPDATE CASCADE;
+
+ALTER TABLE `university_efficiency_db`.`departments`
+    ADD INDEX `dep_fac_idx` (`faculty_id` ASC) VISIBLE;
+;
+ALTER TABLE `university_efficiency_db`.`departments`
+    ADD CONSTRAINT `dep_fac`
+        FOREIGN KEY (`faculty_id`)
+            REFERENCES `university_efficiency_db`.`faculties` (`faculty_id`)
+            ON DELETE RESTRICT
             ON UPDATE CASCADE;
 

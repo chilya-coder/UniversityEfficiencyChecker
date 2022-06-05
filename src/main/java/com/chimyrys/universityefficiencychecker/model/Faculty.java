@@ -14,17 +14,13 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "departments")
-public class Department {
+@Table(name = "faculties")
+public class Faculty {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int departmentId;
+    private int facultyId;
     private String name;
-    @OneToMany(mappedBy = "department")
+    @OneToMany(mappedBy = "faculty")
     @JsonIgnore
-    private List<User> userList;
-    @ManyToOne
-    @JoinColumn(name = "faculty_id")
-    private Faculty faculty;
-
+    private List<Department> departmentList;
 }

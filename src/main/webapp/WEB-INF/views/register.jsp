@@ -43,9 +43,8 @@
                                     <form:label path="user.firstName" class="form-label"
                                                 for="validation-name">Ім'я</form:label>
                                     <form:input path="user.firstName" type="text" id="validation-name"
-                                                class="form-control form-control-lg" name="name"/>
+                                                class="form-control form-control-lg"/>
                                     <form:errors path="user.firstName" class="error-msg"/>
-                                    <div class="valid-feedback">Looks good!</div>
                                 </div>
 
                                 <div class="mb-1 py-2">

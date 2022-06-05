@@ -6,6 +6,8 @@ import com.chimyrys.universityefficiencychecker.db.UserCredentialRepository;
 import com.chimyrys.universityefficiencychecker.db.UserRepository;
 import com.chimyrys.universityefficiencychecker.model.*;
 import com.chimyrys.universityefficiencychecker.services.api.UserService;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -45,10 +47,20 @@ public class MainController {
         return "login";
     }
 
-    @GetMapping("/users")
-    @ResponseBody
-    public List<User> allUsers() {
-        return userRepository.findAll();
+    @GetMapping(path = "/user_profile")
+    public String userProfilePage(@ModelAttribute("user1") User user, HttpServletRequest servletRequest) {
+        UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        servletRequest.setAttribute("user", userCredentialRepository.getUserCredentialByLogin(principal.getUsername()).get().getUser());
+
+        return "user_profile";
+    }
+
+    @PostMapping(path = "/user_profile")
+    public String getEditedDataFromRegisterPage(@Valid @ModelAttribute("user1") User user, BindingResult bindingResult, HttpServletRequest servletRequest) {
+        UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        servletRequest.setAttribute("user", userCredentialRepository.getUserCredentialByLogin(principal.getUsername()).get().getUser());
+        user.setUserId(userCredentialRepository.getUserCredentialByLogin(principal.getUsername()).get().getUser().getUserId());
+        return "user_profile";
     }
 
     @GetMapping(path = "/register")

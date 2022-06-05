@@ -31,4 +31,12 @@ public class UserServiceImpl implements UserService {
         userRepository.save(userCredential.getUser());
         userCredentialRepository.save(userCredential);
     }
+
+    @Override
+    public void updateUserByFormData(User userOld, User newUser) {
+        if (!newUser.getEmail().isEmpty() && !userOld.getEmail().equals(newUser.getEmail())) {
+            //userOld.setEmail();
+        }
+    }
+
 }
