@@ -3,8 +3,8 @@ VALUES ('Анна', 'Марченко', 'Вікторівна', 1, 'a.marchenko@
        ('Віра', 'Шендрик', 'Вікторівна', 1, 'v.shendryk@cs.sumdu.edu.ua', 1);
 
 INSERT INTO user_credentials(login, password, user_id, user_role_id, is_user_enabled)
-VALUES ('Anna Marchenko', 'test', 1, 0, 1, 0),
-       ('Vira Viktorivna', 'admin', 2, 1, 1, 0);
+VALUES ('Anna Marchenko', 'test', 1, 0, 0),
+       ('Vira Viktorivna', 'admin', 2, 1, 0);
 
 insert into positions(name)
 values ('Доцент'),

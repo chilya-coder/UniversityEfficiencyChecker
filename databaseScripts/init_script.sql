@@ -36,7 +36,7 @@ CREATE TABLE `university_efficiency_db`.`departments`
 
 CREATE TABLE `university_efficiency_db`.`faculties`
 (
-    `faculty_id` INT         NOT NULL AUTO_INCREMENT,
+    `faculty_id` INT          NOT NULL AUTO_INCREMENT,
     `name`       VARCHAR(100) NOT NULL,
     PRIMARY KEY (`faculty_id`)
 );
@@ -47,8 +47,10 @@ CREATE TABLE `university_efficiency_db`.`user_credentials`
     `login`        VARCHAR(45) NOT NULL,
     `password`     VARCHAR(45) NOT NULL,
     `user_id`      INT         NOT NULL,
-    `user_role_id` INT         NOT NULL,
-    'is_user_enabled' TINYINT  NOT NULL,
+    `user_role_id` INT         NOT NULL, 'is_user_enabled'
+    TINYINT
+    NOT
+    NULL,
     PRIMARY KEY (`user_cred_id`)
 );
 
@@ -87,16 +89,15 @@ CREATE TABLE `university_efficiency_db`.`scientific_titles`
 
 CREATE TABLE `university_efficiency_db`.`science_works`
 (
-    `science_work_id`     INT         NOT NULL AUTO_INCREMENT,
-    `name`                VARCHAR(45) NOT NULL,
-    `char_of_work_id`     INT         NOT NULL,
-    `date_of_publication` DATE        NOT NULL,
-    `type_of_work_id`     INT         NOT NULL,
-    `magazine_id`         INT         NOT NULL,
-    `size`                INT         NOT NULL,
-    `page_intervals`      VARCHAR(45) NOT NULL,
+    `science_work_id`     INT          NOT NULL AUTO_INCREMENT,
+    `name`                VARCHAR(250) NOT NULL,
+    `char_of_work_id`     INT          NOT NULL,
+    `date_of_publication` DATE         NOT NULL,
+    `type_of_work_id`     INT NULL,
+    `size`                INT NULL,
     `has_ext_authors`     TINYINT NULL,
     `has_ext_stud`        TINYINT NULL,
+    `output_data`        VARCHAR(2000) NULL,
     PRIMARY KEY (`science_work_id`)
 );
 CREATE TABLE `university_efficiency_db`.`requirements_types`
@@ -112,23 +113,6 @@ CREATE TABLE `university_efficiency_db`.`character_of_work`
     `char_of_work_id` INT         NOT NULL AUTO_INCREMENT,
     `name`            VARCHAR(45) NOT NULL,
     PRIMARY KEY (`char_of_work_id`)
-);
-
-CREATE TABLE `university_efficiency_db`.`magazines`
-(
-    `magazine_id`          INT         NOT NULL AUTO_INCREMENT,
-    `name`                 VARCHAR(45) NOT NULL,
-    `number_edition`       INT NULL,
-    `foreign_publish_name` VARCHAR(45) NULL,
-    `publish_office_id`    INT         NOT NULL,
-    PRIMARY KEY (`magazine_id`)
-);
-
-CREATE TABLE `university_efficiency_db`.`publish_offices`
-(
-    `publish_office_id` INT         NOT NULL AUTO_INCREMENT,
-    `name`              VARCHAR(45) NOT NULL,
-    PRIMARY KEY (`publish_office_id`)
 );
 
 CREATE TABLE `university_efficiency_db`.`type_of_work`
@@ -158,7 +142,6 @@ CREATE TABLE `university_efficiency_db`.`external_authors`
 (
     `ext_author_id` INT         NOT NULL AUTO_INCREMENT,
     `name`          VARCHAR(45) NOT NULL,
-    `office_id`     INT NULL,
     `patronymic`    VARCHAR(45) NOT NULL,
     `surname`       VARCHAR(45) NOT NULL,
     PRIMARY KEY (`ext_author_id`)
@@ -170,16 +153,8 @@ CREATE TABLE `university_efficiency_db`.`external_students`
     `name`           VARCHAR(45) NOT NULL,
     `surname`        VARCHAR(45) NOT NULL,
     `patronymic`     VARCHAR(45) NOT NULL,
-    `group_id`       INT         NOT NULL,
-    `article_key`    VARCHAR(45) NULL,
+    `group_id`       VARCHAR(45),
     PRIMARY KEY (`ext_student_id`)
-);
-
-CREATE TABLE `university_efficiency_db`.`offices`
-(
-    `office_id` INT         NOT NULL AUTO_INCREMENT,
-    `name`      VARCHAR(45) NOT NULL,
-    PRIMARY KEY (`office_id`)
 );
 
 CREATE TABLE `university_efficiency_db`.`ext_stud_science_work`

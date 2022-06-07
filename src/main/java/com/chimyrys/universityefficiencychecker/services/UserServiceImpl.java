@@ -4,6 +4,8 @@ import com.chimyrys.universityefficiencychecker.db.UserCredentialRepository;
 import com.chimyrys.universityefficiencychecker.db.UserRepository;
 import com.chimyrys.universityefficiencychecker.model.*;
 import com.chimyrys.universityefficiencychecker.services.api.UserService;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -32,11 +34,9 @@ public class UserServiceImpl implements UserService {
         userCredentialRepository.save(userCredential);
     }
 
-    @Override
-    public void updateUserByFormData(User userOld, User newUser) {
-        if (!newUser.getEmail().isEmpty() && !userOld.getEmail().equals(newUser.getEmail())) {
-            //userOld.setEmail();
-        }
+    public User getCurrentUser() {
+        UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return userCredentialRepository.getUserCredentialByLogin(principal.getUsername()).get().getUser();
     }
 
 }

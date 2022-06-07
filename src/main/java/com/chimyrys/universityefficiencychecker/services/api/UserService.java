@@ -8,9 +8,8 @@ import com.chimyrys.universityefficiencychecker.model.UserCredential;
 import java.util.Optional;
 
 public interface UserService {
-    public void createDefaultUser(UserCredential userCredential,
-                                  Optional<Department> optionalDepartment,
-                                  Optional<Position> optionalPosition);
-
-    public void updateUserByFormData(User userOld, User newUser);
+    void createDefaultUser(UserCredential userCredential,
+                           Optional<Department> optionalDepartment,
+                           Optional<Position> optionalPosition);
+    User getCurrentUser();
 }

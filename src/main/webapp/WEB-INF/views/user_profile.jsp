@@ -23,13 +23,7 @@
 </script>
 <div class="container">
     <div class="main-body">
-        <nav aria-label="breadcrumb" class="main-breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="index.html">Home</a></li>
-                <li class="breadcrumb-item"><a href="javascript:void(0)">Home</a></li>
-                <li class="breadcrumb-item active" aria-current="page">User Profile</li>
-            </ol>
-        </nav>
+        <input class="btn btn-primary mb-3" type="button" onclick="location.href = '/science_work'" value="Наукові роботи">
         <form:form modelAttribute ="user1" method="post" action="/user_profile">
             <div class="row gutters-sm">
                 <div class="col-md-4 mb-3">

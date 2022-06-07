@@ -1,9 +1,6 @@
 package com.chimyrys.universityefficiencychecker.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
@@ -16,6 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @Table(name = "users")
+@EqualsAndHashCode
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,4 +35,18 @@ public class User {
     @ManyToOne
     @JoinColumn(name = "position_id")
     private Position position;
+    @ManyToMany(mappedBy = "users")
+    private List<ScienceWork> scienceWorks;
+    public User(String fullName) {
+        String[] parts = fullName.split(" ");
+        if (parts.length != 3) {
+            throw new IllegalArgumentException("Incorrect fullName");
+        }
+        this.firstName = parts[0];
+        this.lastName = parts[1];
+        this.patronymic = parts[2];
+    }
+    public String getFullName() {
+        return lastName + " " + firstName + " " + patronymic;
+    }
 }
