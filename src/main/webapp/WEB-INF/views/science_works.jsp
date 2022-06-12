@@ -7,23 +7,27 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
-    <title>Наукові праці</title>
+    <title>Наукові роботи</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <link href="/resources/science_works.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
+            integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+            crossorigin="anonymous"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
 
             const btn = document.querySelector('#add-btn');
             const modal = new bootstrap.Modal(document.querySelector('#modal'));
-            btn.addEventListener('click', function() {
+            btn.addEventListener('click', function () {
                 modal.show();
             });
             const closeButtons = document.querySelectorAll('.btn-close');
             closeButtons.forEach(function (closeBtn) {
-                closeBtn.addEventListener('click', function() {
+                closeBtn.addEventListener('click', function () {
                     modal.hide();
                 })
             })
@@ -41,13 +45,86 @@
                     contentType: "application/json",
                     complete: [
                         function (response) {
-                            console.log(response);
+                            document.location.reload();
                         }
                     ]
                 })
             })
+            const sortButton = document.querySelector('#sort-btn');
+            const confirmSortButton = document.querySelector('#confirm-sort-btn');
+            sortButton.addEventListener('click', function () {
+                if (document.getElementById('sort-data').hidden === false) {
+                    document.getElementById('sort-data').hidden = true;
+                } else {
+                    document.getElementById('sort-data').hidden = false;
+                }
+            })
+            confirmSortButton.addEventListener('click', function () {
+                var date_from = document.querySelector("#date-from").value;
+                var date_to = document.querySelector("#date-to").value;
+                if (date_from > date_to || date_from === date_to) {
+                    document.getElementById('date-from').style.backgroundColor = 'pink';
+                    document.getElementById('date-to').style.backgroundColor = 'pink';
+                    confirmSortButton.disabled = true;
+                }
+                var dates = [date_from, date_to];
+                var requestBody = {};
+                dates.forEach((value, key) => requestBody[key] = value);
+                var json = JSON.stringify(requestBody);
+                document.location.href = "/filter_science_work?since=" + date_from + "&to=" + date_to;
+                /*$.ajax({
+                    type: "POST",
+                    url: "/sort_science_work?since=" + date_from + "&to=" + date_to,
+                    data: json,
+                    dataType: 'json',
+                    contentType: "application/json",
+                    complete: [
+                        function (response) {
+                            //document.location.reload();
+                        }
+                    ]
+                })*/
+            })
+            const date_inputs = document.querySelectorAll(".date-input");
+            date_inputs.forEach(function (date_input) {
+                date_input.addEventListener("focusout", function () {
+                    var date_from = document.querySelector("#date-from").value;
+                    var date_to = document.querySelector("#date-to").value;
+                    if (date_from === ''
+                        || date_to === '') {
+                        return;
+                    }
+                    if ((date_from > date_to || date_from === date_to) && (date_from !== ''
+                        && date_to !== '')) {
+                        document.getElementById('date-from').style.backgroundColor = 'pink';
+                        document.getElementById('date-to').style.backgroundColor = 'pink';
+                        confirmSortButton.disabled = true;
+                        alert("Дата до повинна бути раніше дати після");
+                    } else {
+                        document.getElementById('date-from').style.backgroundColor = 'white';
+                        document.getElementById('date-to').style.backgroundColor = 'white';
+                        confirmSortButton.disabled = false;
+                    }
+                });
+            })
+
         });
-        </script>
+        function deleteScienceWork(id) {
+            if (confirm('Ви бажаєте видалити обрану публікацію?')) {
+                $.ajax({
+                    type: "DELETE",
+                    url: "/science_work?id=" + id,
+                    complete: [
+                        function (response) {
+                            document.location.reload();
+                        }
+                    ]
+                })
+            } else {
+                return;
+            }
+        }
+    </script>
 </head>
 <%
     List<ScienceWork> scienceWorkList = (List<ScienceWork>) request.getAttribute("science_works");
@@ -55,9 +132,47 @@
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy");
 %>
 <body>
-
-<div class="container bg-light">
-    <button class="btn btn-primary mt-4" id="add-btn" data-bs-toggle="modal" data-bs-target="#modal">Додати публікацію</button>
+<nav class="navbar navbar-light bg-light" id="nav">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/user_profile">
+            <img src="resources/images/logo.png" alt="" width="30" height="30" class="d-inline-block align-text-top">
+            <%=userService.getCurrentUser().getFullName()%>
+        </a>
+    </div>
+</nav>
+<div class="container">
+    <div class="flex-box row">
+        <button class="btn btn-primary mt-4" id="add-btn" data-bs-toggle="modal" data-bs-target="#modal"
+                style="background-color: rgb(12,140,203)">Додати публікацію
+        </button>
+        <button class="btn btn-primary mt-4" id="sort-btn" style="background-color: rgb(12,140,203)">Фільтрація за
+            роком
+        </button>
+        <%if (request.getParameter("since") != null && !request.getParameter("since").isEmpty()) {%>
+        <input type="button" class="btn btn-primary mt-4" value="Згенерувати список праць"
+               style="background-color: rgb(12,140,203)"
+               onclick="location.href='/generate_report?since=<%=request.getParameter("since")%>&to=<%=request.getParameter("to")%>'">
+        <%} else {%>
+        <input type="button" class="btn btn-primary mt-4" value="Згенерувати список праць"
+               style="background-color: rgb(12,140,203)" onclick="location.href='/generate_report'">
+        <%}%>
+        <button class="btn btn-primary mt-4" id="sort-btn" style="background-color: rgb(12,140,203);">Інформаційна
+            довідка
+        </button>
+    </div>
+    <div class="mb-1 py-2" id="sort-data" hidden="true">
+        <label class="form-label"
+               for="date-from">Публікації з</label>
+        <input type="number" min="2000" max="2050" step="1" id="date-from" name="date-from"
+               class="form-control form-control-lg w-25 date-input"/>
+        <label class="form-label"
+               for="date-to">до</label>
+        <input type="number" min="2000" max="2050" step="1" id="date-to" name="date-to"
+               class="form-control form-control-lg w-25 date-input"/>
+        <button class="btn btn-primary mt-4" id="confirm-sort-btn" style="background-color: rgb(12,140,203)" disabled>
+            Відфільтрувати
+        </button>
+    </div>
     <table class="table table-bordered mt-5">
         <thead>
         <tr>
@@ -89,7 +204,10 @@
             <td scope="row"><%=scienceWorkList.get(i).getCoAuthorsNames(userService.getCurrentUser())%>
             </td>
             <td scope="row">
-            <button class="btn btn-primary"> Edit</button>
+                <button class="btn btn-primary" style="background-color: rgb(12,140,203)">Редагувати</button>
+            </td>
+            <td scope="row">
+                <button class="btn btn-danger" id="<%=scienceWorkList.get(i).getScienceWorkId()%>" onclick="deleteScienceWork(id)">X</button>
             </td>
         </tr>
         <%}%>
@@ -100,7 +218,9 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLabel">Додати нову публікацію</h5>
-                    <button type="button" class="btn-close btn btn-secondary" data-bs-dismiss="modal" aria-label="Close">x</button>
+                    <button type="button" class="btn-close btn btn-secondary" data-bs-dismiss="modal"
+                            aria-label="Close">x
+                    </button>
                 </div>
                 <div class="modal-body">
                     <form id="add-science-work-form">
@@ -147,24 +267,29 @@
                             <label class="form-label" for="extTeacherName">Співавтори: викладачі</label>
                             <input type="text" id="extTeacherName" name="extTeacherName"
                                    class="form-control form-control-lg"/>
-                            <small id="extTeacherNameHelp" class="form-text text-muted">Введіть ім'я викладачів у форматі: Прізвище Ім'я По-батькові, Прізвище Ім'я По-батькові</small>
+                            <small id="extTeacherNameHelp" class="form-text text-muted">Введіть ім'я викладачів у
+                                форматі: Прізвище Ім'я По-батькові, Прізвище Ім'я По-батькові</small>
                         </div>
                         <div class="mb-1 py-2">
                             <label class="form-label" for="extStudentName">Співавтори: студенти</label>
                             <input type="text" id="extStudentName" name="extStudentName"
                                    class="form-control form-control-lg"/>
-                            <small id="extStudentNameHelp" class="form-text text-muted">Введіть ім'я студентів у форматі: Прізвище Ім'я По-батькові(Група), Прізвище Ім'я По-батькові(Група)</small>
+                            <small id="extStudentNameHelp" class="form-text text-muted">Введіть ім'я студентів у
+                                форматі: Прізвище Ім'я По-батькові(Група), Прізвище Ім'я По-батькові(Група)</small>
                         </div>
                         <div class="mb-1 py-2">
                             <label class="form-label" for="extAuthorsName">Співавтори: зовнішні автори</label>
                             <input type="text" id="extAuthorsName" name="extAuthorsName"
                                    class="form-control form-control-lg"/>
-                            <small id="extAuthorsNameHelp" class="form-text text-muted">Введіть ім'я зовнішніх авторів у форматі: Прізвище Ім'я По-батькові, Прізвище Ім'я По-батькові</small>
+                            <small id="extAuthorsNameHelp" class="form-text text-muted">Введіть ім'я зовнішніх авторів у
+                                форматі: Прізвище Ім'я По-батькові, Прізвище Ім'я По-батькові</small>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" id="save-science-work" class="btn btn-info">Зберегти</button>
+                    <button type="button" id="save-science-work" class="btn btn-info"
+                            style="background-color: rgb(12,140,203)">Зберегти
+                    </button>
                 </div>
             </div>
         </div>

@@ -35,6 +35,14 @@ public class User {
     @ManyToOne
     @JoinColumn(name = "position_id")
     private Position position;
+    @ManyToOne
+    @JoinColumn(name = "degree_id")
+    private Degree degree;
+    @ManyToOne
+    @JoinColumn(name = "scientific_title_id")
+    private ScientificTitle scientificTitle;
+    @OneToMany(mappedBy = "user")
+    private List<Contract> contract;
     @ManyToMany(mappedBy = "users")
     private List<ScienceWork> scienceWorks;
     public User(String fullName) {

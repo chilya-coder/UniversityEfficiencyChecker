@@ -1,12 +1,14 @@
 CREATE TABLE `university_efficiency_db`.`users`
 (
-    `user_id`       INT         NOT NULL AUTO_INCREMENT,
-    `first_name`    VARCHAR(45) NOT NULL,
-    `last_name`     VARCHAR(45) NOT NULL,
-    `patronymic`    VARCHAR(45) NOT NULL,
-    `department_id` INT         NOT NULL,
-    `email`         VARCHAR(45) NOT NULL,
-    `position_id`   INT         NOT NULL,
+    `user_id`             INT         NOT NULL AUTO_INCREMENT,
+    `first_name`          VARCHAR(45) NOT NULL,
+    `last_name`           VARCHAR(45) NOT NULL,
+    `patronymic`          VARCHAR(45) NOT NULL,
+    `department_id`       INT         NOT NULL,
+    `email`               VARCHAR(45) NOT NULL,
+    `position_id`         INT         NOT NULL,
+    `scientific_title_id` INT         NOT NULL,
+    `degree_id`           INT         NOT NULL,
     PRIMARY KEY (`user_id`)
 );
 
@@ -43,14 +45,12 @@ CREATE TABLE `university_efficiency_db`.`faculties`
 
 CREATE TABLE `university_efficiency_db`.`user_credentials`
 (
-    `user_cred_id` INT         NOT NULL AUTO_INCREMENT,
-    `login`        VARCHAR(45) NOT NULL,
-    `password`     VARCHAR(45) NOT NULL,
-    `user_id`      INT         NOT NULL,
-    `user_role_id` INT         NOT NULL, 'is_user_enabled'
-    TINYINT
-    NOT
-    NULL,
+    `user_cred_id`    INT         NOT NULL AUTO_INCREMENT,
+    `login`           VARCHAR(45) NOT NULL,
+    `password`        VARCHAR(45) NOT NULL,
+    `user_id`         INT         NOT NULL,
+    `user_role_id`    INT         NOT NULL,
+    `is_user_enabled` TINYINT     NOT NULL,
     PRIMARY KEY (`user_cred_id`)
 );
 
@@ -97,7 +97,7 @@ CREATE TABLE `university_efficiency_db`.`science_works`
     `size`                INT NULL,
     `has_ext_authors`     TINYINT NULL,
     `has_ext_stud`        TINYINT NULL,
-    `output_data`        VARCHAR(2000) NULL,
+    `output_data`         VARCHAR(2000) NULL,
     PRIMARY KEY (`science_work_id`)
 );
 CREATE TABLE `university_efficiency_db`.`requirements_types`
@@ -165,6 +165,23 @@ CREATE TABLE `university_efficiency_db`.`ext_stud_science_work`
     PRIMARY KEY (`ext_student_science_work_id`)
 );
 
+CREATE TABLE `university_efficiency_db`.`contracts`
+(
+    `contract_id` INT  NOT NULL AUTO_INCREMENT,
+    `date_start`  DATE NOT NULL,
+    `date_end`    DATE NOT NULL,
+    `user_id`     INT  NOT NULL,
+    PRIMARY KEY (`contract_id`),
+    INDEX         `user_contract_idx` (`user_id` ASC) VISIBLE,
+    CONSTRAINT `user_contract`
+        FOREIGN KEY (`user_id`)
+            REFERENCES `university_efficiency_db`.`users` (`user_id`)
+            ON DELETE CASCADE
+            ON UPDATE CASCADE
+);
+
+
+
 ALTER TABLE `university_efficiency_db`.`users`
     ADD INDEX `user_department_idx` (`department_id` ASC) VISIBLE;
 ALTER TABLE `university_efficiency_db`.`users`
@@ -195,7 +212,21 @@ ALTER TABLE `university_efficiency_db`.`user_credentials`
 
 ALTER TABLE `university_efficiency_db`.`departments`
     ADD INDEX `dep_fac_idx` (`faculty_id` ASC) VISIBLE;
-;
+
+ADD INDEX `user_scientific_title_idx` (`scientific_title_id` ASC) VISIBLE,
+ADD INDEX `user_degree_idx` (`degree_id` ASC) VISIBLE;
+ALTER TABLE `university_efficiency_db`.`users`
+    ADD CONSTRAINT `user_scientific_title`
+        FOREIGN KEY (`scientific_title_id`)
+            REFERENCES `university_efficiency_db`.`scientific_titles` (`scientific_title_id`)
+            ON DELETE CASCADE
+            ON UPDATE CASCADE,
+    ADD CONSTRAINT `user_degree`
+      FOREIGN KEY (`degree_id`)
+      REFERENCES `university_efficiency_db`.`degrees` (`degree_id`)
+      ON DELETE CASCADE
+      ON UPDATE CASCADE;
+
 ALTER TABLE `university_efficiency_db`.`departments`
     ADD CONSTRAINT `dep_fac`
         FOREIGN KEY (`faculty_id`)
@@ -203,3 +234,18 @@ ALTER TABLE `university_efficiency_db`.`departments`
             ON DELETE RESTRICT
             ON UPDATE CASCADE;
 
+
+ALTER TABLE `university_efficiency_db`.`users`
+    ADD CONSTRAINT `user_scientific_title`
+        FOREIGN KEY (`scientific_title_id`)
+            REFERENCES `university_efficiency_db`.`scientific_titles` (`scientific_title_id`)
+            ON DELETE RESTRICT
+            ON UPDATE RESTRICT,
+    ADD CONSTRAINT `user_degree`
+      FOREIGN KEY (`degree_id`)
+      REFERENCES `university_efficiency_db`.`degrees` (`degree_id`)
+      ON
+DELETE
+RESTRICT
+      ON
+UPDATE RESTRICT;

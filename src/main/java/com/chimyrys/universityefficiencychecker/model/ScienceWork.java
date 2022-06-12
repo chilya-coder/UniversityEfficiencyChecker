@@ -17,6 +17,7 @@ import java.util.List;
 @Builder
 @Entity
 @Table(name = "science_works")
+@EqualsAndHashCode
 public class ScienceWork {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -54,16 +55,16 @@ public class ScienceWork {
     private List<User> users;
     public String getCoAuthorsNames(User currentUser) {
         List<String> names = new ArrayList<>();
-        for (ExternalAuthor externalAuthor : externalAuthors) {
-            names.add(externalAuthor.getFullName());
-        }
-        for (ExternalStudent externalStudent : externalStudents) {
-            names.add(externalStudent.getFullName());
-        }
         for (User user : users) {
             if (!user.equals(currentUser)) {
                 names.add(user.getFullName());
             }
+        }
+        for (ExternalAuthor externalAuthor : externalAuthors) {
+            names.add(externalAuthor.getFullName());
+        }
+        for (ExternalStudent externalStudent : externalStudents) {
+            names.add(externalStudent.getFullName() + " " + externalStudent.getGroupId());
         }
         return String.join(", ", names);
     }

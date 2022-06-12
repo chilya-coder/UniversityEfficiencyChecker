@@ -4,8 +4,8 @@ import lombok.Getter;
 
 @Getter
 public enum TypeOfWork {
-    DRUK(0, "Стаття"),
-    ELEC(1, "Тези");
+    ARTICLE(0, "Стаття"),
+    SCIENCE_NOTES(1, "Тези");
     private int id;
     private String type;
 

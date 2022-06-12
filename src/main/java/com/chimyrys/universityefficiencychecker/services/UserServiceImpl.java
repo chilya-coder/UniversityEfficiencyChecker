@@ -33,10 +33,11 @@ public class UserServiceImpl implements UserService {
         userRepository.save(userCredential.getUser());
         userCredentialRepository.save(userCredential);
     }
-
+    public UserDetails getCurrentUserDetails() {
+        return (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    }
     public User getCurrentUser() {
-        UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return userCredentialRepository.getUserCredentialByLogin(principal.getUsername()).get().getUser();
+        return userCredentialRepository.getUserCredentialByLogin(getCurrentUserDetails().getUsername()).get().getUser();
     }
 
 }

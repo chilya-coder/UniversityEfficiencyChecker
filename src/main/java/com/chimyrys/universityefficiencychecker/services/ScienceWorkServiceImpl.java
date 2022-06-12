@@ -7,6 +7,7 @@ import com.chimyrys.universityefficiencychecker.db.UserRepository;
 import com.chimyrys.universityefficiencychecker.model.*;
 import com.chimyrys.universityefficiencychecker.services.api.ScienceWorkService;
 import com.chimyrys.universityefficiencychecker.services.api.UserService;
+import com.chimyrys.universityefficiencychecker.utils.DateUtils;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
@@ -54,7 +55,7 @@ public class ScienceWorkServiceImpl implements ScienceWorkService {
                 builder.outputData(value);
             } else if (key.equals("dateOfPublication")) {
                 try {
-                    builder.dateOfPublication(new SimpleDateFormat("yyyy-MM-dd").parse(value));
+                    builder.dateOfPublication(DateUtils.getDateFromString(value));
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
@@ -68,13 +69,18 @@ public class ScienceWorkServiceImpl implements ScienceWorkService {
                     Optional<User> userOptional = userRepository.findByLastNameAndFirstNameAndPatronymic(names[0], names[1], names[2]);
                     userOptional.ifPresent(users::add);
                 }
-                builder.users(users);
             } else if (key.equals("extStudentName") && value != null && !value.isEmpty()) {
                 builder.hasExtStud(true);
                 String[] studentsNames = value.split(", ");
                 List<ExternalStudent> externalStudents = new ArrayList<>();
                 for (String studentFullName: studentsNames) {
-                    externalStudents.add(new ExternalStudent(studentFullName));
+                    ExternalStudent externalStudent = new ExternalStudent(studentFullName);
+                    Optional<ExternalStudent> optional = externalStudentRepository.findBySurnameAndNameAndPatronymic(externalStudent.getSurname(), externalStudent.getName(), externalStudent.getPatronymic());
+                    if (optional.isPresent()) {
+                        externalStudents.add(optional.get());
+                    } else {
+                        externalStudents.add(externalStudent);
+                    }
                 }
                 externalStudents.forEach(externalStudentRepository::save);
                 builder.externalStudents(externalStudents);
@@ -83,14 +89,21 @@ public class ScienceWorkServiceImpl implements ScienceWorkService {
                 String[] extAuthorsNames = value.split(", ");
                 List<ExternalAuthor> externalAuthors = new ArrayList<>();
                 for (String extAuthorFullName: extAuthorsNames) {
-                    externalAuthors.add(new ExternalAuthor(extAuthorFullName));
+                    ExternalAuthor externalAuthor = new ExternalAuthor(extAuthorFullName);
+                    Optional<ExternalAuthor> optional = externalAuthorRepository.findBySurnameAndNameAndPatronymic(externalAuthor.getSurname(), externalAuthor.getName(), externalAuthor.getPatronymic());
+                    if (optional.isPresent()) {
+                        externalAuthors.add(optional.get());
+                    } else {
+                        externalAuthors.add(externalAuthor);
+                    }
                 }
                 externalAuthors.forEach(externalAuthorRepository::save);
                 builder.externalAuthors(externalAuthors);
             }
         }
+        builder.users(users);
         ScienceWork scienceWork = builder.build();
         scienceWorkRepository.save(scienceWork);
-        userRepository.flush();
     }
+
 }

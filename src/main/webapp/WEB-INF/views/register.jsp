@@ -25,10 +25,9 @@
     List<Department> departmentList = departmentRepository.findAll();
     PositionRepository positionRepository = (PositionRepository) request.getAttribute("positionRepository");
     List<Position> positionList = positionRepository.findAll();
+
 %>
-<section class="vh-100 bg-image"
-         style="background-image: url('https://mdbcdn.b-cdn.net/img/Photos/new-templates/search-box/img4.webp');">
-    <div class="mask d-flex align-items-center h-100 gradient-custom-3">
+    <div class="mask d-flex align-items-center bg-image" id="container-register">
         <div class="container h-100">
             <div class="row d-flex justify-content-center align-items-center h-100">
                 <div class="col-12 col-md-9 col-lg-7 col-xl-6">
@@ -89,7 +88,7 @@
                                 </div>
 
                                 <div class="mb-1 py-2">
-                                    <label for="departmentId">Секція</label>
+                                    <label for="departmentId">Кафедра</label>
                                     <select id="departmentId" name="departmentId" class="form-select mb-3"
                                             aria-label=".form-select example">
                                         <%for (Department d : departmentList) {%>
@@ -110,9 +109,20 @@
                                     </select>
                                 </div>
 
+                                <div class="mb-1 py-2">
+                                    <label for="scientificTitleId">Вчене звання</label>
+                                    <select id="scientificTitleId" name="scientificTitleId" class="form-select mb-3"
+                                            aria-label=".form-select example">
+                                        <%for (Position p : positionList) {%>
+                                        <option value="<%=p.getPositionId()%>"><%=p.getName()%>
+                                        </option>
+                                        <%}%>
+                                    </select>
+                                </div>
+
                                 <div class="d-flex justify-content-center">
                                     <button type="submit"
-                                            class="btn btn-success btn-block btn-lg gradient-custom-4 text-body">
+                                            class="btn btn-success btn-lg" style="background-color: rgb(12,140,203)">
                                         Надіслати запит
                                     </button>
                                 </div>
@@ -127,6 +137,5 @@
             </div>
         </div>
     </div>
-</section>
 </body>
 </html>
