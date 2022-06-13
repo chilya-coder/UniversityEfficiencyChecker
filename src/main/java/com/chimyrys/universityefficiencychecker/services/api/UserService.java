@@ -1,9 +1,6 @@
 package com.chimyrys.universityefficiencychecker.services.api;
 
-import com.chimyrys.universityefficiencychecker.model.Department;
-import com.chimyrys.universityefficiencychecker.model.Position;
-import com.chimyrys.universityefficiencychecker.model.User;
-import com.chimyrys.universityefficiencychecker.model.UserCredential;
+import com.chimyrys.universityefficiencychecker.model.*;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Optional;
@@ -11,7 +8,11 @@ import java.util.Optional;
 public interface UserService {
     void createDefaultUser(UserCredential userCredential,
                            Optional<Department> optionalDepartment,
-                           Optional<Position> optionalPosition);
+                           Optional<Position> optionalPosition,
+                           Optional<ScientificTitle> optionalScientificTitle,
+                           Optional<Degree> optionalDegree);
+
     User getCurrentUser();
+
     UserDetails getCurrentUserDetails();
 }

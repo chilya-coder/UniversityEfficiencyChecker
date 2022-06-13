@@ -9,8 +9,6 @@ import com.chimyrys.universityefficiencychecker.services.api.UserService;
 import com.chimyrys.universityefficiencychecker.utils.DateUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -34,8 +32,10 @@ public class MainController {
     private final GenerateWordDocumentService generateWordDocumentService;
     private final ContractService contractService;
     private final ContractRepository contractRepository;
+    private final ScientificTitleRepository scientificTitleRepository;
+    private final DegreeRepository degreeRepository;
 
-    public MainController(UserRepository userRepository, UserCredentialRepository userCredentialRepository, DepartmentRepository departmentRepository, PositionRepository positionRepository, UserService userService, ScienceWorkRepository scienceWorkRepository, ScienceWorkService scienceWorkService, GenerateWordDocumentService generateWordDocumentService, ContractService contractService, ContractRepository contractRepository) {
+    public MainController(UserRepository userRepository, UserCredentialRepository userCredentialRepository, DepartmentRepository departmentRepository, PositionRepository positionRepository, UserService userService, ScienceWorkRepository scienceWorkRepository, ScienceWorkService scienceWorkService, GenerateWordDocumentService generateWordDocumentService, ContractService contractService, ContractRepository contractRepository, ScientificTitleRepository scientificTitleRepository, DegreeRepository degreeRepository) {
         this.userRepository = userRepository;
         this.userCredentialRepository = userCredentialRepository;
         this.departmentRepository = departmentRepository;
@@ -46,6 +46,8 @@ public class MainController {
         this.generateWordDocumentService = generateWordDocumentService;
         this.contractService = contractService;
         this.contractRepository = contractRepository;
+        this.scientificTitleRepository = scientificTitleRepository;
+        this.degreeRepository = degreeRepository;
     }
 
     @ResponseBody
@@ -78,6 +80,8 @@ public class MainController {
     public String registerPage(@ModelAttribute("userCredential") UserCredential userCredential, HttpServletRequest servletRequest) {
         servletRequest.setAttribute("departmentRepository", departmentRepository);
         servletRequest.setAttribute("positionRepository", positionRepository);
+        servletRequest.setAttribute("scientificTitleRepository", scientificTitleRepository);
+        servletRequest.setAttribute("degreeRepository", degreeRepository);
         return "register";
     }
 
@@ -85,14 +89,22 @@ public class MainController {
     public String getDataFromRegisterPage(@Valid @ModelAttribute("userCredential") UserCredential userCredential, BindingResult bindingResult, HttpServletRequest servletRequest) {
         servletRequest.setAttribute("departmentRepository", departmentRepository);
         servletRequest.setAttribute("positionRepository", positionRepository);
+        servletRequest.setAttribute("contractRepository", contractRepository);
+        servletRequest.setAttribute("scientificTitleRepository", scientificTitleRepository);
+        servletRequest.setAttribute("degreeRepository", degreeRepository);
         servletRequest.getParameter("departmentId");
         servletRequest.getParameter("positionId");
+        servletRequest.getParameter("scientificTitleId");
+        servletRequest.getParameter("degreeId");
         Optional<Department> departmentOptional = departmentRepository.findById(Integer.parseInt(servletRequest.getParameter("departmentId")));
         Optional<Position> positionOptional = positionRepository.findById(Integer.parseInt(servletRequest.getParameter("positionId")));
+        Optional<ScientificTitle> scientificTitleOptional = scientificTitleRepository.findById(Integer.parseInt(servletRequest.getParameter("scientificTitleId")));
+        Optional<Degree> degreeOptional = degreeRepository.findById(Integer.parseInt(servletRequest.getParameter("degreeId")));
         if (bindingResult.hasErrors()) {
             return "register";
         }
-        userService.createDefaultUser(userCredential, departmentOptional, positionOptional);
+        userService.createDefaultUser(userCredential, departmentOptional, positionOptional, scientificTitleOptional, degreeOptional);
+
         return "redirect:/login";
     }
 
@@ -112,7 +124,7 @@ public class MainController {
 
     @DeleteMapping(path = "/science_work")
     @ResponseBody
-    public ResponseEntity<String> deleteScienceWork(@RequestParam (value = "id") int scienceWorkId) {
+    public ResponseEntity<String> deleteScienceWork(@RequestParam(value = "id") int scienceWorkId) {
         if (userService.getCurrentUser().getScienceWorks().contains(scienceWorkRepository.getById(scienceWorkId))) {
             scienceWorkRepository.deleteById(scienceWorkId);
             return new ResponseEntity<>("Science work was deleted", HttpStatus.OK);
@@ -124,7 +136,7 @@ public class MainController {
 
     @GetMapping(path = "/filter_science_work")
     public String filterScienceWork(@RequestParam("since") String since,
-                                  @RequestParam("to") String to, HttpServletRequest servletRequest) {
+                                    @RequestParam("to") String to, HttpServletRequest servletRequest) {
         List<Date> dates = DateUtils.getDateRangeForYear(Integer.parseInt(since), Integer.parseInt(to));
         List<ScienceWork> scienceWorkList = scienceWorkRepository
                 .findAllByDateOfPublicationBetweenAndUsersEqualsOrderByDateOfPublicationAsc(dates.get(0), dates.get(1), userService.getCurrentUser());
@@ -153,4 +165,5 @@ public class MainController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 }

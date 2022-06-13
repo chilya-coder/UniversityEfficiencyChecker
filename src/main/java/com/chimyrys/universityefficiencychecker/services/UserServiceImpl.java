@@ -23,11 +23,17 @@ public class UserServiceImpl implements UserService {
     @Override
     public void createDefaultUser(UserCredential userCredential,
                                   Optional<Department> optionalDepartment,
-                                  Optional<Position> optionalPosition) {
+                                  Optional<Position> optionalPosition,
+                                  Optional<ScientificTitle> optionalScientificTitle,
+                                  Optional<Degree> optionalDegree) {
 
         optionalDepartment.ifPresent(department -> userCredential.getUser().setDepartment(department));
 
         optionalPosition.ifPresent(position -> userCredential.getUser().setPosition(position));
+        userCredential.getUser().setScientificTitle(optionalScientificTitle.get());
+        userCredential.getUser().setDegree(optionalDegree.get());
+        //optionalScientificTitle.isPresent(scientificTitle -> userCredential.getUser().setScientificTitle(scientificTitle));
+        //optionalDegree.isPresent(degree -> userCredential.getUser().setDegree(degree));
         userCredential.setIsUserEnabled(IsUserEnabled.DISABLED);
         userCredential.setRole(Role.TEACHER);
         userRepository.save(userCredential.getUser());
