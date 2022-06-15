@@ -34,8 +34,9 @@ public class MainController {
     private final ContractRepository contractRepository;
     private final ScientificTitleRepository scientificTitleRepository;
     private final DegreeRepository degreeRepository;
+    private final SpecialtyRepository specialtyRepository;
 
-    public MainController(UserRepository userRepository, UserCredentialRepository userCredentialRepository, DepartmentRepository departmentRepository, PositionRepository positionRepository, UserService userService, ScienceWorkRepository scienceWorkRepository, ScienceWorkService scienceWorkService, GenerateWordDocumentService generateWordDocumentService, ContractService contractService, ContractRepository contractRepository, ScientificTitleRepository scientificTitleRepository, DegreeRepository degreeRepository) {
+    public MainController(UserRepository userRepository, UserCredentialRepository userCredentialRepository, DepartmentRepository departmentRepository, PositionRepository positionRepository, UserService userService, ScienceWorkRepository scienceWorkRepository, ScienceWorkService scienceWorkService, GenerateWordDocumentService generateWordDocumentService, ContractService contractService, ContractRepository contractRepository, ScientificTitleRepository scientificTitleRepository, DegreeRepository degreeRepository, SpecialtyRepository specialtyRepository) {
         this.userRepository = userRepository;
         this.userCredentialRepository = userCredentialRepository;
         this.departmentRepository = departmentRepository;
@@ -48,6 +49,7 @@ public class MainController {
         this.contractRepository = contractRepository;
         this.scientificTitleRepository = scientificTitleRepository;
         this.degreeRepository = degreeRepository;
+        this.specialtyRepository = specialtyRepository;
     }
 
     @ResponseBody
@@ -66,15 +68,10 @@ public class MainController {
         servletRequest.setAttribute("user", userService.getCurrentUser());
         servletRequest.setAttribute("isUserEnabled", userService.getCurrentUserDetails().isEnabled());
         servletRequest.setAttribute("lastContract", contractRepository.findFirstByUserOrderByDateStartDesc(userService.getCurrentUser()));
+        servletRequest.setAttribute("specialtyRepository", specialtyRepository);
+        servletRequest.setAttribute("contractRepository", contractRepository);
         return "user_profile";
     }
-
-    /*@PostMapping(path = "/user_profile")
-    public String getEditedDataFromRegisterPage(@Valid @ModelAttribute("user1") User user, BindingResult bindingResult, HttpServletRequest servletRequest) {
-        UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        servletRequest.setAttribute("user", userCredentialRepository.getUserCredentialByLogin(principal.getUsername()).get().getUser());
-        return "user_profile";
-    }*/
 
     @GetMapping(path = "/register")
     public String registerPage(@ModelAttribute("userCredential") UserCredential userCredential, HttpServletRequest servletRequest) {
@@ -92,10 +89,6 @@ public class MainController {
         servletRequest.setAttribute("contractRepository", contractRepository);
         servletRequest.setAttribute("scientificTitleRepository", scientificTitleRepository);
         servletRequest.setAttribute("degreeRepository", degreeRepository);
-        servletRequest.getParameter("departmentId");
-        servletRequest.getParameter("positionId");
-        servletRequest.getParameter("scientificTitleId");
-        servletRequest.getParameter("degreeId");
         Optional<Department> departmentOptional = departmentRepository.findById(Integer.parseInt(servletRequest.getParameter("departmentId")));
         Optional<Position> positionOptional = positionRepository.findById(Integer.parseInt(servletRequest.getParameter("positionId")));
         Optional<ScientificTitle> scientificTitleOptional = scientificTitleRepository.findById(Integer.parseInt(servletRequest.getParameter("scientificTitleId")));
@@ -112,6 +105,7 @@ public class MainController {
     public String getUserScienceWorks(HttpServletRequest servletRequest) {
         servletRequest.setAttribute("science_works", scienceWorkRepository.findAllByUsersEqualsOrderByDateOfPublicationAsc(userService.getCurrentUser()));
         servletRequest.setAttribute("userService", userService);
+        servletRequest.setAttribute("specialtyRepository", specialtyRepository);
         return "science_works";
     }
 
@@ -142,6 +136,7 @@ public class MainController {
                 .findAllByDateOfPublicationBetweenAndUsersEqualsOrderByDateOfPublicationAsc(dates.get(0), dates.get(1), userService.getCurrentUser());
         servletRequest.setAttribute("science_works", scienceWorkList);
         servletRequest.setAttribute("userService", userService);
+        servletRequest.setAttribute("specialtyRepository", specialtyRepository);
         return "science_works";
     }
 
@@ -158,7 +153,7 @@ public class MainController {
                                                  @RequestParam(value = "to", defaultValue = "2022") String to) {
 
         try {
-            byte[] content = generateWordDocumentService.createTableWord(Integer.parseInt(since), Integer.parseInt(to));
+            byte[] content = generateWordDocumentService.generateReport(Integer.parseInt(since), Integer.parseInt(to));
             return new ResponseEntity<>(content, HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
@@ -166,4 +161,15 @@ public class MainController {
         }
     }
 
+    @GetMapping(path = "/generate_info_report", produces = {"application/vnd.openxmlformats-officedocument.wordprocessingml.document"})
+    @ResponseBody
+    public ResponseEntity<byte[]> generateInfoReport() {
+        try {
+            byte[] content = generateWordDocumentService.generateInfoReport();
+            return new ResponseEntity<>(content, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

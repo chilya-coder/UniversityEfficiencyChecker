@@ -23,4 +23,8 @@ public class Contract {
     @JoinColumn(name = "user_id")
     @JsonIgnore
     private User user;
+    @ManyToOne
+    @JoinColumn(name = "specialty_id")
+    @JsonIgnore
+    private Specialty specialty;
 }

@@ -1,9 +1,6 @@
 package com.chimyrys.universityefficiencychecker.services;
 
-import com.chimyrys.universityefficiencychecker.db.ExternalAuthorRepository;
-import com.chimyrys.universityefficiencychecker.db.ExternalStudentRepository;
-import com.chimyrys.universityefficiencychecker.db.ScienceWorkRepository;
-import com.chimyrys.universityefficiencychecker.db.UserRepository;
+import com.chimyrys.universityefficiencychecker.db.*;
 import com.chimyrys.universityefficiencychecker.model.*;
 import com.chimyrys.universityefficiencychecker.services.api.ScienceWorkService;
 import com.chimyrys.universityefficiencychecker.services.api.UserService;
@@ -11,7 +8,6 @@ import com.chimyrys.universityefficiencychecker.utils.DateUtils;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
@@ -21,13 +17,15 @@ public class ScienceWorkServiceImpl implements ScienceWorkService {
     private final ScienceWorkRepository scienceWorkRepository;
     private final ExternalStudentRepository externalStudentRepository;
     private final ExternalAuthorRepository externalAuthorRepository;
+    private final SpecialtyRepository specialtyRepository;
 
-    public ScienceWorkServiceImpl(UserService userService, UserRepository userRepository, ScienceWorkRepository scienceWorkRepository, ExternalStudentRepository externalStudentRepository, ExternalAuthorRepository externalAuthorRepository) {
+    public ScienceWorkServiceImpl(UserService userService, UserRepository userRepository, ScienceWorkRepository scienceWorkRepository, ExternalStudentRepository externalStudentRepository, ExternalAuthorRepository externalAuthorRepository, SpecialtyRepository specialtyRepository) {
         this.userService = userService;
         this.userRepository = userRepository;
         this.scienceWorkRepository = scienceWorkRepository;
         this.externalStudentRepository = externalStudentRepository;
         this.externalAuthorRepository = externalAuthorRepository;
+        this.specialtyRepository = specialtyRepository;
     }
 
     @Override
@@ -62,6 +60,8 @@ public class ScienceWorkServiceImpl implements ScienceWorkService {
             }
             else if (key.equals("size")) {
                 builder.size(Integer.parseInt(value));
+            } else if (key.equals("specialtyId")) {
+                builder.specialty(specialtyRepository.findById(Integer.parseInt(value)).get());
             } else if (key.equals("extTeacherName") && value != null && !value.isEmpty()) {
                 String[] additionalUsers = value.split(", ");
                 for (String userFullName: additionalUsers) {

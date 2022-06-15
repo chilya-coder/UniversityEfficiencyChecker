@@ -24,7 +24,12 @@ public class DateUtils {
         dates.add(toDate);
         return dates;
     }
+
     public Date getDateFromString(String value) throws ParseException {
         return new SimpleDateFormat("yyyy-MM-dd").parse(value);
+    }
+
+    public String getStringFromDate(Date date) {
+        return new SimpleDateFormat("yyyy-MM-dd").format(date);
     }
 }

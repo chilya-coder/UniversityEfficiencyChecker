@@ -1,6 +1,7 @@
 package com.chimyrys.universityefficiencychecker.services.api;
 
 import com.chimyrys.universityefficiencychecker.model.*;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Optional;
@@ -15,4 +16,6 @@ public interface UserService {
     User getCurrentUser();
 
     UserDetails getCurrentUserDetails();
+
+    UserCredential getUserCredentials();
 }

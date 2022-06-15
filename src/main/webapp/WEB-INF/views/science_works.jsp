@@ -4,6 +4,8 @@
 <%@ page import="com.chimyrys.universityefficiencychecker.model.CharOfWork" %>
 <%@ page import="com.chimyrys.universityefficiencychecker.services.api.UserService" %>
 <%@ page import="java.text.SimpleDateFormat" %>
+<%@ page import="com.chimyrys.universityefficiencychecker.db.SpecialtyRepository" %>
+<%@ page import="com.chimyrys.universityefficiencychecker.model.Specialty" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
@@ -67,23 +69,7 @@
                     document.getElementById('date-to').style.backgroundColor = 'pink';
                     confirmSortButton.disabled = true;
                 }
-                var dates = [date_from, date_to];
-                var requestBody = {};
-                dates.forEach((value, key) => requestBody[key] = value);
-                var json = JSON.stringify(requestBody);
                 document.location.href = "/filter_science_work?since=" + date_from + "&to=" + date_to;
-                /*$.ajax({
-                    type: "POST",
-                    url: "/sort_science_work?since=" + date_from + "&to=" + date_to,
-                    data: json,
-                    dataType: 'json',
-                    contentType: "application/json",
-                    complete: [
-                        function (response) {
-                            //document.location.reload();
-                        }
-                    ]
-                })*/
             })
             const date_inputs = document.querySelectorAll(".date-input");
             date_inputs.forEach(function (date_input) {
@@ -109,6 +95,7 @@
             })
 
         });
+
         function deleteScienceWork(id) {
             if (confirm('Ви бажаєте видалити обрану публікацію?')) {
                 $.ajax({
@@ -130,6 +117,7 @@
     List<ScienceWork> scienceWorkList = (List<ScienceWork>) request.getAttribute("science_works");
     UserService userService = (UserService) request.getAttribute("userService");
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy");
+    SpecialtyRepository specialtyRepository = (SpecialtyRepository) request.getAttribute("specialtyRepository");
 %>
 <body>
 <nav class="navbar navbar-light bg-light" id="nav">
@@ -156,9 +144,8 @@
         <input type="button" class="btn btn-primary mt-4" value="Згенерувати список праць"
                style="background-color: rgb(12,140,203)" onclick="location.href='/generate_report'">
         <%}%>
-        <button class="btn btn-primary mt-4" id="sort-btn" style="background-color: rgb(12,140,203);">Інформаційна
-            довідка
-        </button>
+        <input type="button" class="btn btn-primary mt-4" value="Інформаційна довідка"
+               style="background-color: rgb(12,140,203)" onclick="location.href='/generate_info_report'">
     </div>
     <div class="mb-1 py-2" id="sort-data" hidden="true">
         <label class="form-label"
@@ -176,8 +163,8 @@
     <table class="table table-bordered mt-5">
         <thead>
         <tr>
-            <th scope="col">№ з/п
-            </th>
+            <th scope="col">№ з/п</th>
+            <th scope="col">ID</th>
             <th scope="col">Назва</th>
             <th scope="col">Характер роботи</th>
             <th scope="col">Вихідні дані</th>
@@ -189,8 +176,9 @@
         <tbody>
         <%for (int i = 0; i < scienceWorkList.size(); ++i) {%>
         <tr>
-            <th scope="row">
-                <%=i + 1%>
+            <th scope="row"><%=i + 1%>
+            </th>
+            <th scope="row"><%=scienceWorkList.get(i).getScienceWorkId()%>
             </th>
             <th scope="row"><%=scienceWorkList.get(i).getName() + "(" + scienceWorkList.get(i).getTypeOfWork().getType().toLowerCase() + ")"%>
             </th>
@@ -207,7 +195,9 @@
                 <button class="btn btn-primary" style="background-color: rgb(12,140,203)">Редагувати</button>
             </td>
             <td scope="row">
-                <button class="btn btn-danger" id="<%=scienceWorkList.get(i).getScienceWorkId()%>" onclick="deleteScienceWork(id)">X</button>
+                <button class="btn btn-danger" id="<%=scienceWorkList.get(i).getScienceWorkId()%>"
+                        onclick="deleteScienceWork(id)">X
+                </button>
             </td>
         </tr>
         <%}%>
@@ -244,6 +234,15 @@
                             <select id="char-of-work-id" name="charOfWorkId" class="form-select mb-3">
                                 <%for (CharOfWork charOfWork : CharOfWork.values()) {%>
                                 <option value="<%=charOfWork.getId()%>"><%=charOfWork.getCharacteristic()%>
+                                </option>
+                                <%}%>
+                            </select>
+                        </div>
+                        <div class="mb-1 py-2">
+                            <label for="specialty-id">Спеціальність*</label>
+                            <select id="specialty-id" name="specialtyId" class="form-select mb-3">
+                                <%for (Specialty specialty : specialtyRepository.findAll()) {%>
+                                <option value="<%=specialty.getSpecialtyId()%>"><%=specialty.getName()%>
                                 </option>
                                 <%}%>
                             </select>

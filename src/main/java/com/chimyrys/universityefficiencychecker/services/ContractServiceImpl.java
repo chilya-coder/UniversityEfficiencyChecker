@@ -1,8 +1,8 @@
 package com.chimyrys.universityefficiencychecker.services;
 
 import com.chimyrys.universityefficiencychecker.db.ContractRepository;
+import com.chimyrys.universityefficiencychecker.db.SpecialtyRepository;
 import com.chimyrys.universityefficiencychecker.model.Contract;
-import com.chimyrys.universityefficiencychecker.model.ScienceWork;
 import com.chimyrys.universityefficiencychecker.model.User;
 import com.chimyrys.universityefficiencychecker.services.api.ContractService;
 import com.chimyrys.universityefficiencychecker.services.api.UserService;
@@ -14,11 +14,13 @@ import java.util.Map;
 
 @Service
 public class ContractServiceImpl implements ContractService {
-    private ContractRepository contractRepository;
+    private final ContractRepository contractRepository;
+    private final SpecialtyRepository specialtyRepository;
     private final UserService userService;
 
-    public ContractServiceImpl(ContractRepository contractRepository, UserService userService) {
+    public ContractServiceImpl(ContractRepository contractRepository, SpecialtyRepository specialtyRepository, UserService userService) {
         this.contractRepository = contractRepository;
+        this.specialtyRepository = specialtyRepository;
         this.userService = userService;
     }
 
@@ -26,7 +28,7 @@ public class ContractServiceImpl implements ContractService {
     public void addContractByUserInput(Map<String, String> input) {
         Contract.ContractBuilder builder = Contract.builder();
         User currentUser = userService.getCurrentUser();
-        for(Map.Entry<String, String> entry : input.entrySet()) {
+        for (Map.Entry<String, String> entry : input.entrySet()) {
             String key = entry.getKey();
             String value = entry.getValue();
             if (key.equals("start-contract-date")) {
@@ -41,6 +43,8 @@ public class ContractServiceImpl implements ContractService {
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
+            } else if (key.equals("specialtyId")) {
+                builder.specialty(specialtyRepository.findById(Integer.parseInt(value)).get());
             }
         }
         builder.user(userService.getCurrentUser());

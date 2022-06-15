@@ -98,13 +98,15 @@ CREATE TABLE `university_efficiency_db`.`science_works`
     `has_ext_authors`     TINYINT NULL,
     `has_ext_stud`        TINYINT NULL,
     `output_data`         VARCHAR(2000) NULL,
+    `specialty_id`        INT NULL,
     PRIMARY KEY (`science_work_id`)
 );
 CREATE TABLE `university_efficiency_db`.`requirements_types`
 (
-    `req_type_id` INT         NOT NULL AUTO_INCREMENT,
-    `name`        VARCHAR(45) NOT NULL,
-    `req_number`  INT         NOT NULL,
+    `req_type_id` INT          NOT NULL AUTO_INCREMENT,
+    `name`        VARCHAR(500) NOT NULL,
+    `req_number`  INT          NOT NULL,
+    `condition`   VARCHAR(100) NOT NULL,
     PRIMARY KEY (`req_type_id`)
 );
 
@@ -167,12 +169,13 @@ CREATE TABLE `university_efficiency_db`.`ext_stud_science_work`
 
 CREATE TABLE `university_efficiency_db`.`contracts`
 (
-    `contract_id` INT  NOT NULL AUTO_INCREMENT,
-    `date_start`  DATE NOT NULL,
-    `date_end`    DATE NOT NULL,
-    `user_id`     INT  NOT NULL,
+    `contract_id`  INT  NOT NULL AUTO_INCREMENT,
+    `date_start`   DATE NOT NULL,
+    `date_end`     DATE NOT NULL,
+    `user_id`      INT  NOT NULL,
+    `specialty_id` INT,
     PRIMARY KEY (`contract_id`),
-    INDEX         `user_contract_idx` (`user_id` ASC) VISIBLE,
+    INDEX          `user_contract_idx` (`user_id` ASC) VISIBLE,
     CONSTRAINT `user_contract`
         FOREIGN KEY (`user_id`)
             REFERENCES `university_efficiency_db`.`users` (`user_id`)
@@ -213,8 +216,6 @@ ALTER TABLE `university_efficiency_db`.`user_credentials`
 ALTER TABLE `university_efficiency_db`.`departments`
     ADD INDEX `dep_fac_idx` (`faculty_id` ASC) VISIBLE;
 
-ADD INDEX `user_scientific_title_idx` (`scientific_title_id` ASC) VISIBLE,
-ADD INDEX `user_degree_idx` (`degree_id` ASC) VISIBLE;
 ALTER TABLE `university_efficiency_db`.`users`
     ADD CONSTRAINT `user_scientific_title`
         FOREIGN KEY (`scientific_title_id`)
@@ -224,9 +225,14 @@ ALTER TABLE `university_efficiency_db`.`users`
     ADD CONSTRAINT `user_degree`
       FOREIGN KEY (`degree_id`)
       REFERENCES `university_efficiency_db`.`degrees` (`degree_id`)
-      ON DELETE CASCADE
-      ON UPDATE CASCADE;
+      ON
+DELETE
+CASCADE
+      ON
+UPDATE CASCADE;
 
+ADD INDEX `user_scientific_title_idx` (`scientific_title_id` ASC) VISIBLE,
+ADD INDEX `user_degree_idx` (`degree_id` ASC) VISIBLE;
 ALTER TABLE `university_efficiency_db`.`departments`
     ADD CONSTRAINT `dep_fac`
         FOREIGN KEY (`faculty_id`)
@@ -249,3 +255,19 @@ DELETE
 RESTRICT
       ON
 UPDATE RESTRICT;
+
+ADD INDEX `specialties_science_works_idx` (`specialty_id` ASC) VISIBLE;
+ALTER TABLE `university_efficiency_db`.`science_works`
+    ADD CONSTRAINT `specialties_science_works`
+        FOREIGN KEY (`specialty_id`)
+            REFERENCES `university_efficiency_db`.`specialties` (`specialty_id`)
+            ON DELETE RESTRICT
+            ON UPDATE RESTRICT;
+
+ADD INDEX `contract_specialty_idx` (`specialty_id` ASC) VISIBLE;
+ALTER TABLE `university_efficiency_db`.`contracts`
+    ADD CONSTRAINT `contract_specialty`
+        FOREIGN KEY (`specialty_id`)
+            REFERENCES `university_efficiency_db`.`specialties` (`specialty_id`)
+            ON DELETE RESTRICT
+            ON UPDATE CASCADE;

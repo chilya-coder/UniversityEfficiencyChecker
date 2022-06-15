@@ -36,23 +36,23 @@ public class ScienceWork {
     private String outputData;
     private boolean hasExtStud;
     @ManyToMany
-    @JoinTable(
-            name = "ext_auth_science_works",
+    @JoinTable(name = "ext_auth_science_works",
             joinColumns = @JoinColumn(name = "science_work_id"),
             inverseJoinColumns = @JoinColumn(name = "ext_author_id"))
     private List<ExternalAuthor> externalAuthors;
     @ManyToMany
-    @JoinTable(
-            name = "ext_stud_science_work",
+    @JoinTable(name = "ext_stud_science_work",
             joinColumns = @JoinColumn(name = "science_work_id"),
             inverseJoinColumns = @JoinColumn(name = "ext_student_id"))
     private List<ExternalStudent> externalStudents;
     @ManyToMany
-    @JoinTable(
-            name = "authors_science_works",
+    @JoinTable(name = "authors_science_works",
             joinColumns = @JoinColumn(name = "science_work_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id"))
     private List<User> users;
+    @ManyToOne
+    @JoinColumn(name = "specialty_id")
+    private Specialty specialty;
     public String getCoAuthorsNames(User currentUser) {
         List<String> names = new ArrayList<>();
         for (User user : users) {

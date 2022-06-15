@@ -1,5 +1,6 @@
 package com.chimyrys.universityefficiencychecker.config;
 
+import com.chimyrys.universityefficiencychecker.model.Role;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -24,6 +25,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .csrf().disable()
                 .authorizeRequests()
+                .antMatchers("/admin/**").hasAuthority(Role.ADMIN.name())
                 .antMatchers("/login", "/register", "/resources/**").permitAll()
                 .anyRequest().authenticated()
                 .and()

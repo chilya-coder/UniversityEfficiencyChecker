@@ -42,7 +42,7 @@ public class User {
     @JoinColumn(name = "scientific_title_id")
     private ScientificTitle scientificTitle;
     @OneToMany(mappedBy = "user")
-    private List<Contract> contract;
+    private List<Contract> contracts;
     @ManyToMany(mappedBy = "users")
     private List<ScienceWork> scienceWorks;
     public User(String fullName) {

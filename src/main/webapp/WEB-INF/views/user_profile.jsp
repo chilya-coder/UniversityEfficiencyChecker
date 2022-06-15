@@ -1,10 +1,12 @@
-<%@ page import="com.chimyrys.universityefficiencychecker.model.User" %>
-<%@ page import="com.chimyrys.universityefficiencychecker.model.UserCredential" %>
-<%@ page import="com.chimyrys.universityefficiencychecker.model.IsUserEnabled" %>
 <%@ page import="com.chimyrys.universityefficiencychecker.db.ContractRepository" %>
-<%@ page import="com.chimyrys.universityefficiencychecker.model.Contract" %>
 <%@ page import="java.text.SimpleDateFormat" %>
 <%@ page import="java.util.Optional" %>
+<%@ page import="com.chimyrys.universityefficiencychecker.model.*" %>
+<%@ page import="java.util.List" %>
+<%@ page import="com.chimyrys.universityefficiencychecker.db.SpecialtyRepository" %>
+<%@ page import="java.util.Date" %>
+<%@ page import="java.util.Comparator" %>
+<%@ page import="java.util.stream.Collectors" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
@@ -23,15 +25,12 @@
 <body>
 <%
     User user = (User) request.getAttribute("user");
+    SpecialtyRepository specialtyRepository = (SpecialtyRepository) request.getAttribute("specialtyRepository");
+    ContractRepository contractRepository = (ContractRepository) request.getAttribute("contractRepository");
+    List<Contract> contracts = user.getContracts().stream().sorted((o1, o2) -> -1 * o1.getDateEnd().compareTo(o2.getDateEnd())).collect(Collectors.toList());
+    List<Specialty> specialties = contracts.stream().map(Contract::getSpecialty).distinct().collect(Collectors.toList());
     Boolean isUserEnabled = (Boolean) request.getAttribute("isUserEnabled");
-    Optional<Contract> lastContract = (Optional<Contract>) request.getAttribute("lastContract");
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy");
-    String startDate = null;
-    String endDate = null;
-    if(lastContract.isPresent()) {
-        startDate = simpleDateFormat.format(lastContract.get().getDateStart());
-        endDate = simpleDateFormat.format(lastContract.get().getDateEnd());
-    }
 %>
 <nav class="navbar navbar-light bg-light" id="nav">
     <div class="container-fluid">
@@ -47,9 +46,11 @@
         document.getElementById('submit-button').hidden = false;
         document.getElementById('edit-button').hidden = true;
     }
+
     function adminPanel() {
         alert("<%isUserEnabled.toString();%>");
     }
+
     document.addEventListener('DOMContentLoaded', function () {
         const btn = document.querySelector('#add-contract-button');
         const modal = new bootstrap.Modal(document.querySelector('#modal'));
@@ -90,13 +91,15 @@
                 <div class="col-auto">
                     <input class="btn btn-primary mb-3" type="button" onclick="location.href = '/science_work'" value="Наукові роботи" style="background-color: rgb(12,140,203)">
                     <sec:authorize access="hasAuthority('ADMIN')">
-                        <input class="btn btn-info mb-3" type="button" onclick="location.href = '/science_work'" value="Адміністративна панель">
+                        <input class="btn btn-info mb-3" type="button" onclick="location.href = '/admin/admin_tools'" value="Адміністративна панель">
+                        <input class="btn btn-info mb-3" type="button" onclick="location.href = '/admin/specialties'" value="Список спеціальностей">
                     </sec:authorize>
                 </div>
-                <input class="col-auto btn btn-secondary mb-3" type="button" onclick="location.href = '/perform_logout'" value="Вихід">
+                <input class="col-auto btn btn-secondary mb-3" type="button" onclick="location.href = '/perform_logout'"
+                       value="Вихід">
             </div>
         </div>
-        <form:form modelAttribute ="user1" method="post" action="/user_profile">
+        <form:form modelAttribute="user1" method="post" action="/user_profile">
             <div class="row gutters-sm">
                 <div class="col-md-4 mb-3">
                     <div class="card">
@@ -125,7 +128,7 @@
                                     <h6 class="mb-0">ПІБ:</h6>
                                 </div>
                                 <div class="col-sm-9 text-secondary" id="first-name" name="first-name">
-                                        <%=user.getFullName()%>
+                                    <%=user.getFullName()%>
                                 </div>
                             </div>
                             <hr>
@@ -151,7 +154,7 @@
                                     <h6 class="mb-0">Вчений ступінь:</h6>
                                 </div>
                                 <div class="col-sm-9 text-secondary">
-                                    Кандидат технічних наук
+                                    <%=user.getDegree().getName()%>
                                 </div>
                             </div>
                             <div class="row">
@@ -159,7 +162,7 @@
                                     <h6 class="mb-0">Наукове звання:</h6>
                                 </div>
                                 <div class="col-sm-9 text-secondary">
-                                    Доцент
+                                    <%=user.getScientificTitle().getName()%>
                                 </div>
                             </div>
                             <hr>
@@ -181,17 +184,23 @@
                                 </div>
                             </div>
                             <hr>
-                            <div class="row" >
+                            <div class="row">
                                 <div class="col-sm-3">
                                     <h6 class="mb-0">Термін попереднього контракту:</h6>
                                 </div>
                                 <div class="col-sm-9 text-secondary">
-                                    <%if(lastContract.isPresent()) {%>
-                                    з <%=startDate%> р. по <%=endDate%> р.
+                                    <%if (!contracts.isEmpty()) {%>
+                                    <p>
+                                        <%for(Specialty specialty : specialties) {
+                                        Contract contract = contracts.stream().filter(x -> x.getSpecialty() == specialty).findFirst().get();%>
+                                        з <%=simpleDateFormat.format(contract.getDateStart())%> р. по <%=simpleDateFormat.format(contract.getDateEnd())%> р. (<%=contract.getSpecialty().getSpecialtyAlias()%>)</br>
+                                        <%}%>
+                                    </p>
                                     <%} else {%>
                                     Контракт відсутній
                                     <%}%>
-                                    <input class="btn btn-primary mb-3" type="button" id="add-contract-button" value="Додати контракт" style="background-color: rgb(12,140,203)">
+                                    <input class="btn btn-primary mb-3" type="button" id="add-contract-button"
+                                           value="Додати контракт" style="background-color: rgb(12,140,203)">
                                 </div>
                             </div>
                         </div>
@@ -223,6 +232,16 @@
                                for="end-contract-date">Кінець контракту*</label>
                         <input type="date" id="end-contract-date" name="end-contract-date"
                                class="form-control form-control-lg" required/>
+                    </div>
+                    <div class="mb-1 py-2">
+                        <label for="specialty-id">Спеціальність</label>
+                        <select id="specialty-id" name="specialtyId" class="form-select mb-3"
+                                aria-label=".form-select example">
+                            <%for (Specialty s : specialtyRepository.findAll()) {%>
+                            <option value="<%=s.getSpecialtyId()%>"><%=s.getName()%>
+                            </option>
+                            <%}%>
+                        </select>
                     </div>
                 </form>
             </div>
