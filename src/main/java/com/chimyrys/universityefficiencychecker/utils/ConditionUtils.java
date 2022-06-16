@@ -37,7 +37,7 @@ public class ConditionUtils {
         }
         String[] parts = condition.split(" " + trueMethod.getValue() + " ");
         builder.paramName(ParameterName.getByValue(parts[0]));
-        builder.value(parts[1].substring(1, parts[1].length() - 1));
+        builder.value(parts[1]);
         return builder.build();
     }
     private int amountOfGroup(String condition) {

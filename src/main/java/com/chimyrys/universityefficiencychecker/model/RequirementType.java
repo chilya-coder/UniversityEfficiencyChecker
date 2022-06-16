@@ -17,5 +17,5 @@ public class RequirementType {
     private int reqTypeId;
     private String name;
     private int reqNumber;
-    private String condition;
+    private String condition1;
 }

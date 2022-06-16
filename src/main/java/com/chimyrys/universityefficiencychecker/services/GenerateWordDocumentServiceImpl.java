@@ -216,7 +216,7 @@ public class GenerateWordDocumentServiceImpl implements GenerateWordDocumentServ
                 firstTableRow.getCell(0).setText("2." + (i + 1));
 
                 firstTableRow.getCell(1).setText(requirementType.getName());
-                if (requirementType.getCondition() == null || requirementType.getCondition().isEmpty()) {
+                if (requirementType.getCondition1() == null || requirementType.getCondition1().isEmpty()) {
                     continue;
                 }
                 List<ScienceWork> match5year = getScienceWorkMatchReqTypeBetweenDate(scienceWorks, requirementType, date5yearsAgo, new Date());
@@ -255,10 +255,10 @@ public class GenerateWordDocumentServiceImpl implements GenerateWordDocumentServ
                 .collect(Collectors.toList());
         List<RequirementType> requirementTypes = requirementTypeRepository.findAll();
         for (RequirementType requirementType : requirementTypes) {
-            if (requirementType.getCondition() == null || requirementType.getCondition().isEmpty()) {
+            if (requirementType.getCondition1() == null || requirementType.getCondition1().isEmpty()) {
                 continue;
             }
-            Condition condition = ConditionUtils.getConditionFromString(requirementType.getCondition());
+            Condition condition = ConditionUtils.getConditionFromString(requirementType.getCondition1());
             for (ScienceWork scienceWork : scienceWorks) {
                 if (condition.isValid(scienceWork)) {
                     amount++;
@@ -282,10 +282,10 @@ public class GenerateWordDocumentServiceImpl implements GenerateWordDocumentServ
                 .collect(Collectors.toList());
         List<RequirementType> requirementTypes = requirementTypeRepository.findAll();
         for (RequirementType requirementType : requirementTypes) {
-            if (requirementType.getCondition() == null || requirementType.getCondition().isEmpty()) {
+            if (requirementType.getCondition1() == null || requirementType.getCondition1().isEmpty()) {
                 continue;
             }
-            Condition condition = ConditionUtils.getConditionFromString(requirementType.getCondition());
+            Condition condition = ConditionUtils.getConditionFromString(requirementType.getCondition1());
             for (ScienceWork scienceWork : scienceWorks) {
                 if (condition.isValid(scienceWork)) {
                     completedRequirementTypes.add(requirementType);
@@ -322,7 +322,7 @@ public class GenerateWordDocumentServiceImpl implements GenerateWordDocumentServ
                 .filter(x -> x.getDateOfPublication().after(start))
                 .filter(x -> x.getDateOfPublication().before(end))
                 .collect(Collectors.toList());
-        Condition condition = ConditionUtils.getConditionFromString(requirementType.getCondition());
+        Condition condition = ConditionUtils.getConditionFromString(requirementType.getCondition1());
         for (ScienceWork scienceWork : scienceWorks) {
             if (condition.isValid(scienceWork)) {
                 match.add(scienceWork);

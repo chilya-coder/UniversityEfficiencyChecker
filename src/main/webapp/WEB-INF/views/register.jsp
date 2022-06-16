@@ -67,7 +67,7 @@
                             <div class="mb-1 py-2">
                                 <form:label path="user.email" class="form-label"
                                             for="email">Електронна пошта</form:label>
-                                <form:input path="user.email" type="email" id="email"
+                                <form:input path="user.email" type="text" id="email"
                                             class="form-control form-control-lg"/>
                                 <form:errors path="user.email" class="error-msg"/>
                                 <small id="emailHelp" class="form-text text-muted">Н-п: test@gmail.com</small>

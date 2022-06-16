@@ -26,7 +26,7 @@ public class RequirementTypeServiceImpl implements RequirementTypeService {
             } else if (key.equals("number")) {
                 builder.reqNumber(Integer.parseInt(value));
             } else if (key.equals("condition")) {
-                builder.condition(value);
+                builder.condition1(value);
             }
         }
         RequirementType requirementType = builder.build();

@@ -116,6 +116,7 @@
                     <div class="mb-1 py-2">
                         <label class="form-label" for="requirement-type-condition">Умова вимоги</label>
                         <input type="text" id="requirement-type-condition" name="condition" class="form-control form-control-lg"/>
+                        <small id="extTeacherNameHelp" class="form-text text-muted">Введіть умову за прикладом: вихідні дані contains 'scopus'</small>
                     </div>
                 </form>
             </div>
